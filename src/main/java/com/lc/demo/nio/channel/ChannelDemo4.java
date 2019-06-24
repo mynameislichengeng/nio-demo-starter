@@ -16,7 +16,7 @@ import java.util.Set;
 public class ChannelDemo4 {
 
     public static void main(String[] args) throws Exception {
-        encoder();
+        charset();
     }
 
     /**

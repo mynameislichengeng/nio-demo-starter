@@ -6,7 +6,11 @@
 
   <groupId>com.lc.demo.nio</groupId>
   <artifactId>b-sgg-nio-starter</artifactId>
+  <packaging>pom</packaging>
   <version>1.0-SNAPSHOT</version>
+  <modules>
+    <module>bio-socket</module>
+  </modules>
 
   <name>b-sgg-nio-starter</name>
   <!-- FIXME change it to the project's website -->
