@@ -10,6 +10,7 @@
   <version>1.0-SNAPSHOT</version>
   <modules>
     <module>bio-socket</module>
+      <module>nio-sample-simnio</module>
   </modules>
 
   <name>b-sgg-nio-starter</name>
