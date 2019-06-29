@@ -9,7 +9,7 @@ import java.util.Set;
 public class a {
 
     public static void main(String[] args) {
-  Set<String> strings = new HashSet<>();
+        Set<String> strings = new HashSet<>();
         strings.add("10");
         strings.add("12");
 
@@ -18,5 +18,5 @@ public class a {
             System.out.println(iterator.next());
         }
 
- }
+    }
 }
