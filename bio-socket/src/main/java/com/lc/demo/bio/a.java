@@ -9,15 +9,14 @@ import java.util.Set;
 public class a {
 
     public static void main(String[] args) {
-        Set<String> strings = new HashSet<>();
-        strings.add("123");
-        strings.add("153");
+  Set<String> strings = new HashSet<>();
+        strings.add("10");
+        strings.add("12");
+
         Iterator<String> iterator = strings.iterator();
-        while (iterator.hasNext()){
+        while (iterator.hasNext()) {
             System.out.println(iterator.next());
         }
 
-    }
-
-
+ }
 }
