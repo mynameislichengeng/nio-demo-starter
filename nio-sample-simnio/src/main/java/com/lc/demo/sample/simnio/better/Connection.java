@@ -3,6 +3,8 @@ package com.lc.demo.sample.simnio.better;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 public class Connection {
@@ -15,6 +17,7 @@ public class Connection {
 
     public Connection(SocketChannel socketChannel) {
         this.channel = socketChannel;
+        log("Connection() this.socketchannel=" + socketChannel.toString());
         this.dataBufferLength = ByteBuffer.allocate(4);
     }
 
@@ -23,6 +26,7 @@ public class Connection {
     }
 
     public int readAndProcess() throws IOException {
+        log("readAndProcess()");
         int count;
         if (!this.skipHeader) {
             count = ServerApplication.channleRead(this.channel, this.dataBufferLength);
@@ -34,18 +38,18 @@ public class Connection {
         if (this.dataBuffer == null) {
             dataBufferLength.flip();
             int dataLength = dataBufferLength.getInt();
-            dataBuffer = ByteBuffer.allocate(dataLength);
+            this.dataBuffer = ByteBuffer.allocate(dataLength);
         }
         count = ServerApplication.channleRead(this.channel, this.dataBuffer);
-        if (count >= 0 && dataBuffer.remaining() == 0) {
+        if (count >= 0 && this.dataBuffer.remaining() == 0) {
             process();
         }
         return count;
     }
 
     public void process() {
-        dataBuffer.flip();
-        byte[] data = dataBuffer.array();
+        this.dataBuffer.flip();
+        byte[] data = this.dataBuffer.array();
         Call call = new Call(this, data, this.serverApplication.responder);
         try {
             this.serverApplication.queue.put(call);
@@ -62,6 +66,10 @@ public class Connection {
 
             }
         }
+    }
+
+    private void log(String str) {
+        Logger.getLogger(this.getClass().getName()).log(Level.INFO, Thread.currentThread() + " " + str);
     }
 
 

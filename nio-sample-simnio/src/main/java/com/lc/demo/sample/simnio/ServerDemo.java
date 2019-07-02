@@ -33,7 +33,8 @@ public class ServerDemo {
             serverSocketChannel.bind(new InetSocketAddress(8080));
             this.selector = Selector.open();
 
-            serverSocketChannel.register(this.selector, SelectionKey.OP_ACCEPT);
+            SelectionKey selectionKey = serverSocketChannel.register(this.selector, SelectionKey.OP_ACCEPT);
+            System.out.println("selectionKey=" + selectionKey.toString());
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -47,6 +48,7 @@ public class ServerDemo {
             Iterator<SelectionKey> iterable = selector.selectedKeys().iterator();
             if (iterable.hasNext()) {
                 SelectionKey selectionKey = iterable.next();
+                System.out.println("iterator selectionKey=" + selectionKey.toString());
                 iterable.remove();
                 if (selectionKey.isAcceptable()) {
                     System.out.println("server isReadable()");
@@ -57,8 +59,8 @@ public class ServerDemo {
                         continue;
                     }
                     socketChannel.configureBlocking(false);
-                    socketChannel.register(this.selector, SelectionKey.OP_READ );
-
+                    SelectionKey selectionKey1 = socketChannel.register(this.selector, SelectionKey.OP_READ);
+                    System.out.println("selectionKey=" + selectionKey1.toString());
 
                     ByteBuffer byteBuffer = ByteBuffer.allocateDirect(1024);
                     byteBuffer.put("hi new channel".getBytes());

@@ -7,6 +7,8 @@ import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.Iterator;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class Listener extends Thread {
 
@@ -14,23 +16,26 @@ public class Listener extends Thread {
     private ServerApplication serverApplication;
 
     private Selector selector;
-    private int readNum = 0;
     private Reader[] readers;
     private int robin;
 
-    public Listener(int port) {
+    public Listener(int port, ServerApplication serverApplication) {
         try {
+            setName("listener");
             ServerSocketChannel serverSocketChannel = ServerSocketChannel.open();
             serverSocketChannel.configureBlocking(false);
             serverSocketChannel.bind(new InetSocketAddress(port), 150);
 
             this.selector = Selector.open();
-            serverSocketChannel.register(this.selector, SelectionKey.OP_ACCEPT);
+            log("Listener() this.selector=" + this.selector.toString());
+            SelectionKey selectionKey = serverSocketChannel.register(this.selector, SelectionKey.OP_ACCEPT);
+            log("Listener() selectionKey=" + selectionKey.toString());
+            this.setServerApplication(serverApplication);
 
-            this.readNum = 10;
-            this.readers = new Reader[this.readNum];
 
-            for (int i = 0; i < readNum; i++) {
+            this.readers = new Reader[this.serverApplication.readNum];
+
+            for (int i = 0; i < this.serverApplication.readNum; i++) {
                 this.readers[i] = new Reader(i);
                 this.readers[i].setServerApplication(this.serverApplication);
                 this.readers[i].start();
@@ -48,7 +53,9 @@ public class Listener extends Thread {
     public void run() {
         while (this.serverApplication.running) {
             try {
+                log("selector.select() before");
                 this.selector.select();
+                log("selector.select() after");
                 Iterator<SelectionKey> iterator = this.selector.selectedKeys().iterator();
                 while (iterator.hasNext()) {
                     SelectionKey key = iterator.next();
@@ -56,7 +63,11 @@ public class Listener extends Thread {
                     if (key.isValid()) {
                         if (key.isAcceptable()) {
                             doAccept(key);
+                        } else {
+                            log("isUnKonwn()");
                         }
+                    } else {
+                        log("not isValid()");
                     }
                 }
             } catch (IOException e) {
@@ -66,6 +77,7 @@ public class Listener extends Thread {
     }
 
     public void doAccept(SelectionKey key) throws IOException {
+        log("doAccept() --selectionKey = " + key.toString());
         ServerSocketChannel serverSocketChannel = (ServerSocketChannel) key.channel();
         SocketChannel socketChannel;
         while ((socketChannel = serverSocketChannel.accept()) != null) {
@@ -84,6 +96,8 @@ public class Listener extends Thread {
                 Connection c = new Connection(socketChannel);
                 c.setServerApplication(this.serverApplication);
                 readKey.attach(c);
+
+                log("reader attach selectionKey=" + readKey.toString());
             } catch (Exception e) {
 
             } finally {
@@ -95,11 +109,17 @@ public class Listener extends Thread {
     }
 
     public Reader getReader() {
-        if (robin == Integer.MAX_VALUE) {
-            robin = 0;
+//        if (robin == Integer.MAX_VALUE) {
+//            robin = 0;
+//
+//        }
+//        int index = (robin++) % this.serverApplication.readNum;
+//        log("获得reader index=" + index);
+        return readers[0];
+    }
 
-        }
-        int index = (robin++) % readNum;
-        return readers[index];
+
+    private void log(String str) {
+        Logger.getLogger(this.getName()).log(Level.INFO, Thread.currentThread() + " " + str);
     }
 }

@@ -1,15 +1,15 @@
 package com.lc.demo.sample.simnio.better;
 
 import java.nio.ByteBuffer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class Handler extends Thread {
 
     private ServerApplication serverApplication;
 
     public Handler(int p) {
-
         setName("Handle-" + p);
-        System.out.println("starting Handler-" + p + "...");
     }
 
     public void setServerApplication(ServerApplication serverApplication) {
@@ -21,7 +21,9 @@ public class Handler extends Thread {
         while (this.serverApplication.running) {
 
             try {
+                log("blockqueue.take() before");
                 Call call = this.serverApplication.queue.take();
+                log("blockqueue.take() after");
                 process(call);
             } catch (InterruptedException e) {
                 e.printStackTrace();
@@ -36,7 +38,7 @@ public class Handler extends Thread {
         System.out.println("received message: " + message);
 
 
-        int dataLength = 2 * 1024 * 1024;
+        int dataLength = "i am result".getBytes().length;
         ByteBuffer buffer = ByteBuffer.allocate(4 + dataLength);
         buffer.putInt(dataLength);
         this.serverApplication.writeDataForTest(buffer);
@@ -47,4 +49,7 @@ public class Handler extends Thread {
 
     }
 
+    private static void log(String str) {
+        Logger.getLogger(Handler.class.getName()).log(Level.INFO, "thread [" + Thread.currentThread() + "] " + str);
+    }
 }
